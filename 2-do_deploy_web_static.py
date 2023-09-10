@@ -38,7 +38,7 @@ def do_deploy(archive_path):
         run('rm -rf /tmp/{}'.format(to_archive))
 
         # Move contents from archive folder to current folder
-        run('mv {}/web_static/* {}'.format(to_archive, folder_path))
+        run('mv {}/web_static/* {}'.format(folder_path, folder_path))
 
         # Remove the empty web_static folder
         run('rm -rf {}/web_static'.format(folder_path))
