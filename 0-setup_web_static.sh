@@ -8,7 +8,7 @@ mkdir -p /data/web_static/releases/test/
 mkdir -p /data/web_static/shared/
 
 # creates a HTML test file
-echo "Test html for hbnb_project" >> /data/web_static/releases/test/index.html
+echo "webstatic deploy test" >> /data/web_static/releases/test/index.html
 
 # creates a symbolic link and deletes already exists and recreates it
 rm -f /data/web_static/current && ln -s /data/web_static/releases/test/ /data/web_static/current
