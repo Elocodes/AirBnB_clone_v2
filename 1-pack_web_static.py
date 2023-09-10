@@ -4,6 +4,7 @@ contents in the web_static folder
 """
 from fabric.api import local
 from datetime import datetime
+import os
 
 
 def do_pack():
@@ -15,11 +16,11 @@ def do_pack():
         None
     """
     local("mkdir -p versions")
-    now = datetime.now()
-    formatted_date = now.strftime("%Y%m%d%H%M%S")
-    arch_f = "web_static_" + formatted_date + ".tgz"
-    result = local("tar -czvf versions/{} web_static".format(arch_f))
-    if result.failed:
-        return None
-    else:
-        return "versions/" + arch_f
+    time = datetime.now().strftime("%Y%m%d%H%M%S")
+    arch_path = "versions/web_static_{}.tgz".format(time)
+    archive = local("tar -czvf {} web_static".format(arch_path))
+    arch_size = os.stat(arch_path).st_size
+    if archive.succeeded:
+        print("web_static packed: {} -> {}Bytes".format(arch_path, arch_size))
+        return archive
+    return None
