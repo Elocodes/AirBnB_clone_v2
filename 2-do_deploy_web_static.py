@@ -3,7 +3,7 @@
 from fabric.api import env, put, run
 import os
 
-env.hosts = ['54.90.0.245', '54.145.84.49']
+env.hosts = ['54.209.192.89', '52.23.178.163']
 
 
 def do_deploy(archive_path):
@@ -19,33 +19,38 @@ def do_deploy(archive_path):
     if not os.path.exists(archive_path):
         return False
 
+    to_acrchive = os.path.basename(archive_path)
+    folder_name = to_archive.replace(".tgz", "")
+    folder_path = "/data/web_static/releases/{}".format(folder_name)
+    success = False
+
     try:
         # Upload archive to /tmp/ directory on web server
-        archive_name = os.path.basename(archive_path)
-        put(archive_path, '/tmp/{}'.format(archive_name))
-        archive_no_ext = os.path.splitext(archive_name)[0]
+        put(archive_path, '/tmp/{}'.format(to_archive))
 
-        # Create the release folder
-        release_folder = '/data/web_static/releases/' + archive_no_ext
-        run('mkdir -p {}'.format(release_folder))
+        # Create the folder that receives archived files
+        run('mkdir -p {}'.format(folder_path))
 
-        # Uncompress the archive to release folder
-        run('tar -xzf /tmp/{} -C {}'.format(archive_name, release_folder))
+        # decompress the archive into the folder
+        run('tar -xzf /tmp/{} -C {}'.format(to_archive, folder_path))
 
         # Delete the uploaded archive
-        run('rm /tmp/{}'.format(archive_name))
+        run('rm -rf /tmp/{}'.format(to_archive))
 
-        # Move contents from release folder to current folder
-        run('mv {}/web_static/* {}'.format(release_folder, release_folder))
+        # Move contents from archive folder to current folder
+        run('mv {}/web_static/* {}'.format(to_archive, folder_path))
 
         # Remove the empty web_static folder
-        run('rm -rf {}/web_static'.format(release_folder))
+        run('rm -rf {}/web_static'.format(folder_path))
 
         # Delete the old current link
         run('rm -rf /data/web_static/current')
 
         # Create a new symlink
-        run('ln -s {} /data/web_static/current'.format(release_folder))
+        run('ln -s {} /data/web_static/current'.format(folder_path))
+        print('New version deployed!')
+        success = True
         return True
     except Exception:
-        return False
+        success = False
+    return success
