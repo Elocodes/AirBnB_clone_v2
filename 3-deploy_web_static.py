@@ -4,8 +4,9 @@ from fabric.api import run, env, put, local
 from datetime import datetime
 from os.path import exists
 from fabric.decorators import runs_once
+import os
 
-env.hosts = ['54.90.0.245', '54.145.84.49']
+env.hosts = ['54.209.192.89', '52.23.178.163']
 
 
 def do_pack():
@@ -15,10 +16,11 @@ def do_pack():
     arch_f = "versions/web_static_" + formatted_date + ".tgz"
     local("mkdir -p versions")
     result = local("tar -czvf {} web_static".format(arch_f))
-    if result.failed:
-        return None
-    return arch_f
-
+    arch_size = os.stat(arch_f).st_size
+    if result.succeeded:
+        print("web_static packed: {} -> {}Bytes".format(arch_f, arch_size))
+        return arch_f
+    return None
 
 def do_deploy(archive_path):
     """
@@ -60,6 +62,7 @@ def do_deploy(archive_path):
 
         # Create a new symlink
         run('ln -s {} /data/web_static/current'.format(release_folder))
+        print("New version deployed!")
         return True
     except Exception as e:
         print(e)
